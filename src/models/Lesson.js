@@ -3,15 +3,12 @@ const mongoose = require("mongoose");
 const LessonSchema = new mongoose.Schema(
   {
     courseId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Course",
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Course",
     },
     title: String,
     description: String,
-    content: {
-      type: String, // "video", "text"
-      data: String, // URL for video, markdown for text
-    },
+    content: String, // url video
     order: Number,
   },
   {
@@ -21,4 +18,4 @@ const LessonSchema = new mongoose.Schema(
 
 const Lesson = mongoose.model("Lesson", LessonSchema);
 
-module.exports = Lesson;
+module.exports = {Lesson};

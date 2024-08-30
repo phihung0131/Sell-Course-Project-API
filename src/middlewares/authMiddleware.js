@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 const keyJWT = require("../config/jwt");
-const { User } = require("../models");
+const { User } = require("../models/User");
 
 const blacklistedTokens = [];
 

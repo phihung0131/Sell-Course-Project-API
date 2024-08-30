@@ -3,7 +3,7 @@ const cors = require("cors");
 require("dotenv").config();
 
 const { connectionDatabase } = require("./config/database");
-const { authRoutes, userRoutes } = require("./routes");
+const { authRoutes, userRoutes, courseRoutes } = require("./routes");
 
 const app = express();
 
@@ -12,7 +12,7 @@ const port = process.env.PORT || 3000;
 
 // Middleware: Enable CORS for specified origin
 let corsOptions = {
-  origin:  `http://${hostname}:${port}`,
+  origin: `http://${hostname}:${port}`,
 };
 app.use(cors(corsOptions));
 
@@ -25,6 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 // // Routes
 app.use("/api", authRoutes);
 app.use("/api", userRoutes);
+app.use("/api", courseRoutes);
 
 // app.get("/", (req, res) => {
 //   res.json({ message: "Welcome to bezkoder application." });

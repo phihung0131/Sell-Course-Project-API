@@ -1,4 +1,4 @@
-const { User } = require("../models");
+const { User } = require("../models/User");
 
 // No have admin role, admin role is registered by other admin
 const ROLES = ["student", "teacher"];  
