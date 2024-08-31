@@ -29,10 +29,7 @@ router.post(
 
 router.put(
   "/courses/:id",
-  [
-    authMiddleware.verifyToken,
-    roleMiddleware.isTeacherOrAdmin,
-  ],
+  [authMiddleware.verifyToken, roleMiddleware.isTeacherOrAdmin],
   courseController.update
 );
 

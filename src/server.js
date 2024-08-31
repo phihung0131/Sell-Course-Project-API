@@ -3,7 +3,12 @@ const cors = require("cors");
 require("dotenv").config();
 
 const { connectionDatabase } = require("./config/database");
-const { authRoutes, userRoutes, courseRoutes } = require("./routes");
+const {
+  authRoutes,
+  userRoutes,
+  courseRoutes,
+  lessonRoutes,
+} = require("./routes");
 
 const app = express();
 
@@ -26,6 +31,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api", authRoutes);
 app.use("/api", userRoutes);
 app.use("/api", courseRoutes);
+app.use("/api", lessonRoutes);
 
 // app.get("/", (req, res) => {
 //   res.json({ message: "Welcome to bezkoder application." });

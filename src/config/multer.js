@@ -12,12 +12,18 @@ cloudinary.config({
 // Cấu hình Multer với Cloudinary Storage
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: "uploads",
-    allowed_formats: ["jpg", "png", "jpeg"],
-    // transformation: [{ width: 500, height: 500, crop: "limit" }],
-    public_id: (req, file) =>
-      `image-${Date.now()}-${Math.round(Math.random() * 1e9)}`,
+  params: (req, file) => {
+    // Lấy định dạng file từ tên file gốc hoặc có thể dựa trên yêu cầu từ req
+    const format = file.mimetype.split("/")[1];
+
+    return {
+      folder: "uploads",
+      allowed_formats: ["jpg", "png", "jpeg", "mp4", "avi", "mkv"], // Thêm các định dạng video
+      resource_type: "auto", // Cho phép tự động nhận diện loại file (image, video, raw, etc.)
+      public_id: `file-${Date.now()}-${Math.round(
+        Math.random() * 1e9
+      )}.${format}`,
+    };
   },
 });
 
