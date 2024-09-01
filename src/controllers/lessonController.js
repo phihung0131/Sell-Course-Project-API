@@ -106,13 +106,21 @@ const del = async (req, res) => {
         message: "You don't have permission to delete lesson in this course ",
       });
     }
-    // const lesson = await Lesson.findById(req.params.lessonId)
-    const result = await Lesson.deleteById(req.params.lessonId);
 
-    res.status(200).json({
-      message: "Lesson deleted successfully",
-      data: result,
-    });
+    const lesson = await Lesson.findOne({ _id: req.params.lessonId });
+
+    if (lesson) {
+      const result = await Lesson.deleteById(lesson._id);
+
+      res.status(200).json({
+        message: "Lesson deleted successfully",
+        data: result,
+      });
+    } else {
+      return res.status(403).json({
+        message: "Lesson not found or deleted ",
+      });
+    }
   } catch (err) {
     res
       .status(500)
