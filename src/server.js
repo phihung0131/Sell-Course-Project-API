@@ -8,6 +8,7 @@ const {
   userRoutes,
   courseRoutes,
   lessonRoutes,
+  enrollmentRoutes,
 } = require("./routes");
 
 const app = express();
@@ -32,6 +33,7 @@ app.use("/api", authRoutes);
 app.use("/api", userRoutes);
 app.use("/api", courseRoutes);
 app.use("/api", lessonRoutes);
+app.use("/api", enrollmentRoutes);
 
 // app.get("/", (req, res) => {
 //   res.json({ message: "Welcome to bezkoder application." });
