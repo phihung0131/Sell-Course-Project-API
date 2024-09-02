@@ -1,5 +1,6 @@
 const { Lesson, lessonSchema, updateSchema } = require("../models/Lesson");
 const { Course } = require("../models/Course");
+const { Enrollment } = require("../models/Enrollment");
 
 const create = async (req, res) => {
   try {
@@ -128,6 +129,41 @@ const del = async (req, res) => {
   }
 };
 
-const lessonController = { create, update, del };
+const getLesson = async (req, res) => {
+  try {
+    const courseId = req.params.id;
+    const userId = req.userId;
+
+    const enrollment = await Enrollment.findOne({
+      courseId,
+      userId,
+      isAllowed: true,
+    });
+
+    if (!enrollment) {
+      return res.status(404).json({
+        message:
+          "You do not have permission to access this lesson, enrollment does not exist.",
+      });
+    }
+
+    const lesson = await Lesson.findOne({
+      _id: req.params.lessonId,
+    })
+      .populate("courseId", "title")
+      .select("-__v");
+
+    res.status(200).json({
+      message: "Get lesson for users",
+      data: lesson,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching lesson", error: error.message });
+  }
+};
+
+const lessonController = { create, update, del, getLesson };
 
 module.exports = lessonController;

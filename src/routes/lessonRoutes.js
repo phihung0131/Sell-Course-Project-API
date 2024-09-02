@@ -36,4 +36,10 @@ router.delete(
   lessonController.del
 );
 
+router.get(
+  "/courses/:id/lessons/:lessonId",
+  [authMiddleware.verifyToken, roleMiddleware.isStudent],
+  lessonController.getLesson
+);
+
 module.exports = router;
