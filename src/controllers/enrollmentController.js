@@ -1,5 +1,6 @@
 const { Enrollment, enrollmentSchema } = require("../models/Enrollment");
 const { Course } = require("../models/Course");
+
 const enrollCourse = async (req, res) => {
   try {
     const courseId = req.params.id;
