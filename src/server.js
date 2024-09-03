@@ -30,12 +30,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // // Routes
-app.use("/api", authRoutes);
-app.use("/api", userRoutes);
-app.use("/api", courseRoutes);
-app.use("/api", lessonRoutes);
-app.use("/api", enrollmentRoutes);
-app.use("/api", reviewRoutes);
+app.use("/", authRoutes);
+app.use("/", userRoutes);
+app.use("/", courseRoutes);
+app.use("/", lessonRoutes);
+app.use("/", enrollmentRoutes);
+app.use("/", reviewRoutes);
 
 // app.get("/", (req, res) => {
 //   res.json({ message: "Welcome to bezkoder application." });

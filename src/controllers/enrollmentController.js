@@ -3,7 +3,7 @@ const { Course } = require("../models/Course");
 
 const enrollCourse = async (req, res) => {
   try {
-    const courseId = req.params.id;
+    const courseId = req.params.courseId;
 
     const course = await Course.findOne({ _id: courseId, isAllowed: true });
     if (!course) {
@@ -52,7 +52,10 @@ const enrollCourse = async (req, res) => {
 
 const getEnrollments = async (req, res) => {
   try {
-    const enrollments = await Enrollment.find({ userId : req.userId, isAllowed: false })
+    const enrollments = await Enrollment.find({
+      userId: req.userId,
+      isAllowed: false,
+    })
       .populate("courseId")
       .select("-__v");
 
@@ -67,11 +70,96 @@ const getEnrollments = async (req, res) => {
   }
 };
 
+const getEnrollmentsACourse = async (req, res) => {
+  try {
+    const course = await Course.findOne({
+      _id: req.params.courseId,
+      isAllowed: true,
+    });
+
+    if (!course) {
+      return res
+        .status(404)
+        .json({ message: "Course not found or not allowed" });
+    }
+
+    if (course.instructor.toString() !== req.userId) {
+      return res.status(404).json({
+        message:
+          "You do not have permission to view this course enrollments list!",
+      });
+    }
+
+    const enrollments = await Enrollment.find({
+      courseId: course._id,
+    })
+      .populate("userId", "email")
+      .select("-__v");
+
+    res.status(200).json({
+      message: "Get all enrollments for teachers",
+      data: enrollments,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching enrollments for teacher",
+      error: error.message,
+    });
+  }
+};
+
+const acceptEnrollment = async (req, res) => {
+  try {
+    const course = await Course.findOne({
+      _id: req.params.courseId,
+      isAllowed: true,
+    });
+
+    if (!course) {
+      return res
+        .status(404)
+        .json({ message: "Course not found or not allowed" });
+    }
+
+    if (course.instructor.toString() !== req.userId) {
+      return res.status(404).json({
+        message: "You do not have permission to accpect this course!",
+      });
+    }
+
+    const enrollment = await Enrollment.findOne({
+      _id: req.params.enrollmentId,
+    });
+
+    if (!enrollment) {
+      return res.status(404).json({ message: "Enrollment not found" });
+    }
+
+    const newEnrollment = await Enrollment.findByIdAndUpdate(
+      req.params.enrollmentId,
+      { isAllowed: true },
+      {
+        new: true,
+      }
+    );
+
+    res.status(200).json({
+      message: "Accept enrollment for teachers",
+      data: newEnrollment,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error accept enrollments for teacher",
+      error: error.message,
+    });
+  }
+};
+
 const enrollmentController = {
   enrollCourse,
   getEnrollments,
+  getEnrollmentsACourse,
+  acceptEnrollment,
 };
-
-
 
 module.exports = enrollmentController;

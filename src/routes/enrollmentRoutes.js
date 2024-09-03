@@ -16,7 +16,7 @@ router.use(function (req, res, next) {
 
 // Đăng kí khóa học cho students
 router.post(
-  "/enrollments/:id",
+  "/api/courses/:courseId/enroll",
   [
     authMiddleware.verifyToken,
     roleMiddleware.isStudent,
@@ -27,12 +27,22 @@ router.post(
 
 // Lấy danh sách Courses đã đăng kí thành công
 router.get(
-    "/enrollments",
-    [
-      authMiddleware.verifyToken,
-      roleMiddleware.isStudent,
-    ],
-    enrollmentController.getEnrollments
-  );
+  "/api/student/enrollments",
+  [authMiddleware.verifyToken, roleMiddleware.isStudent],
+  enrollmentController.getEnrollments
+);
 
+// Lấy danh sách enrollments hiện có
+router.get(
+  "/api/teacher/courses/:courseId/enrollments",
+  [authMiddleware.verifyToken, roleMiddleware.isTeacher],
+  enrollmentController.getEnrollmentsACourse
+);
+
+// Chấp nhận enrollment khóa học cho teachers
+router.put(
+  "/api/teacher/courses/:courseId/enrollments/:enrollmentId/approve",
+  [authMiddleware.verifyToken, roleMiddleware.isTeacher],
+  enrollmentController.acceptEnrollment
+);
 module.exports = router;

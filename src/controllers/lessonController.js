@@ -4,7 +4,7 @@ const { Enrollment } = require("../models/Enrollment");
 
 const create = async (req, res) => {
   try {
-    const courseId = req.params.id;
+    const courseId = req.params.courseId;
 
     // Validate course existence
     const course = await Course.findById(courseId);
@@ -49,7 +49,7 @@ const create = async (req, res) => {
 
 const update = async (req, res) => {
   try {
-    const courseId = req.params.id;
+    const courseId = req.params.courseId;
     const course = await Course.findById(courseId);
 
     if (!course) {
@@ -94,7 +94,7 @@ const update = async (req, res) => {
 
 const del = async (req, res) => {
   try {
-    const courseId = req.params.id;
+    const courseId = req.params.courseId;
     const course = await Course.findById(courseId);
 
     if (!course) {
@@ -131,7 +131,7 @@ const del = async (req, res) => {
 
 const getLesson = async (req, res) => {
   try {
-    const courseId = req.params.id;
+    const courseId = req.params.courseId;
     const userId = req.userId;
 
     const enrollment = await Enrollment.findOne({

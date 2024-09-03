@@ -14,30 +14,34 @@ router.use(function (req, res, next) {
   next();
 });
 
+// Tạo lesson cho Course dành cho teacher
 router.post(
-  "/courses/:id/lessons",
+  "/api/courses/:courseId/lessons",
   [
     authMiddleware.verifyToken,
     roleMiddleware.isTeacher,
-    upload.single("video"), // Handle video upload
+    upload.single("video"),
   ],
   lessonController.create
 );
 
+// Chỉnh sửa lesson dành cho teacher
 router.put(
-  "/courses/:id/lessons/:lessonId",
+  "/api/courses/:courseId/lessons/:lessonId",
   [authMiddleware.verifyToken, roleMiddleware.isTeacher],
   lessonController.update
 );
 
+// Xóa lesson dành cho giáo viên
 router.delete(
-  "/courses/:id/lessons/:lessonId",
+  "/api/courses/:courseId/lessons/:lessonId",
   [authMiddleware.verifyToken, roleMiddleware.isTeacher],
   lessonController.del
 );
 
+// Xem lesson dành cho student
 router.get(
-  "/courses/:id/lessons/:lessonId",
+  "/api/courses/:courseId/lessons/:lessonId",
   [authMiddleware.verifyToken, roleMiddleware.isStudent],
   lessonController.getLesson
 );

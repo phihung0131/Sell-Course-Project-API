@@ -4,7 +4,7 @@ const { Course } = require("../models/Course");
 
 const create = async (req, res) => {
   try {
-    const courseId = req.params.id;
+    const courseId = req.params.courseId;
     const userId = req.userId;
 
     const enrollment = await Enrollment.findOne({
@@ -56,7 +56,7 @@ const create = async (req, res) => {
 const getReviews = async (req, res) => {
   try {
     const course = await Course.findOne({
-      _id: req.params.id,
+      _id: req.params.courseId,
       isAllowed: true,
     });
 
@@ -66,7 +66,7 @@ const getReviews = async (req, res) => {
         .json({ message: "Course not found or not allowed" });
     }
 
-    const reviews = await Review.find({ courseId: req.params.id })
+    const reviews = await Review.find({ courseId: req.params.courseId })
       .sort({ createdAt: -1 })
       .select("-__v -deleted");
 

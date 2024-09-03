@@ -14,12 +14,9 @@ router.use(function (req, res, next) {
   next();
 });
 
-// // Cấu hình multer để không lưu trữ tệp tin, chỉ phân tích dữ liệu
-// const upload = multer();
-
 // Tạo khóa học cho teachers
 router.post(
-  "/courses",
+  "/api/courses",
   [
     authMiddleware.verifyToken,
     roleMiddleware.isTeacher,
@@ -28,20 +25,27 @@ router.post(
   courseController.create
 );
 
-// Chỉnh sửa khóa học cho admins/teachers
+// Chỉnh sửa khóa học cho teachers
 router.put(
-  "/courses/:id",
-  [authMiddleware.verifyToken, roleMiddleware.isTeacherOrAdmin],
+  "/api/courses/:courseId",
+  [authMiddleware.verifyToken, roleMiddleware.isTeacher],
   courseController.update
 );
 
-// Lấy danh sách khóa học
-router.get("/courses", courseController.getCoursesForUser);
+// Xác nhận phê duyệt khóa học cho Admin
+router.put(
+  "/api/admin/courses/:courseId/approve",
+  [authMiddleware.verifyToken, roleMiddleware.isAdmin],
+  courseController.acceptCourse
+);
 
-// Tìm kiếm và lọc khóa học
-router.get('/courses/filter', courseController.searchCourses);
+// Lấy danh sách khóa học
+router.get("/api/courses", courseController.getCoursesForUser);
+
+// Tìm kiếm, lọc khóa học
+router.get("/api/courses/search", courseController.searchCourses);
 
 // Xem chi tiết khóa học
-router.get('/courses/:id', courseController.getDetailCoures);
+router.get("/api/courses/:courseId", courseController.getDetailCoures);
 
 module.exports = router;

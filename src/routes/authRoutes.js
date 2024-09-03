@@ -12,8 +12,9 @@ router.use(function (req, res, next) {
   next();
 });
 
+// Đăng kí người dùng
 router.post(
-  "/auth/register",
+  "/api/auth/register",
   [
     registerMiddleware.checkDuplicateUsernameOrEmail,
     registerMiddleware.checkRolesExisted,
@@ -21,9 +22,14 @@ router.post(
   authController.register
 );
 
-router.post("/auth/login", authController.login);
+// Đăng nhập
+router.post("/api/auth/login", authController.login);
 
-router.post("/auth/logout", [authMiddleware.verifyToken], authController.logout);
-
+// Đăng xuất
+router.post(
+  "/api/auth/logout",
+  [authMiddleware.verifyToken],
+  authController.logout
+);
 
 module.exports = router;

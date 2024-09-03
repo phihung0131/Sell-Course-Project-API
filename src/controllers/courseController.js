@@ -1,8 +1,7 @@
 const {
   Course,
   courseSchema,
-  teacherUpdateSchema,
-  adminUpdateSchema,
+  updateSchema,
 } = require("../models/Course");
 const { Category } = require("../models/Category");
 const { User } = require("../models/User");
@@ -50,19 +49,15 @@ const create = async (req, res) => {
 
 const update = async (req, res) => {
   try {
-    const courseId = req.params.id;
+    const courseId = req.params.courseId;
     const course = await Course.findById(courseId);
 
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
 
-    const user = await User.findById(req.userId);
     // Kiểm tra quyền truy cập
-    if (
-      user.role === "teacher" &&
-      course.instructor.toString() !== req.userId
-    ) {
+    if (course.instructor.toString() !== req.userId) {
       return res
         .status(403)
         .json({ message: "You don't have permission to edit this course" });
@@ -70,31 +65,21 @@ const update = async (req, res) => {
 
     let updateData = {};
 
-    if (user.role === "teacher") {
-      // Xác thực và cập nhật dữ liệu cho giáo viên
-      const { error, value } = teacherUpdateSchema.validate(req.body);
-      if (error) {
-        return res.status(400).json({ message: error.details[0].message });
-      }
+    // Xác thực và cập nhật dữ liệu cho giáo viên
+    const { error, value } = updateSchema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
+    }
 
-      updateData = value;
+    updateData = value;
 
-      // Xử lý category nếu được cung cấp
-      if (value.category) {
-        const category = await Category.findOne({ name: value.category });
-        if (!category) {
-          return res.status(400).json({ message: "Category not found" });
-        }
-        updateData.category = category._id;
+    // Xử lý category nếu được cung cấp
+    if (value.category) {
+      const category = await Category.findOne({ name: value.category });
+      if (!category) {
+        return res.status(400).json({ message: "Category not found" });
       }
-    } else if (user.role === "admin") {
-      // Xác thực và cập nhật dữ liệu cho admin
-      const { error, value } = adminUpdateSchema.validate(req.body);
-      if (error) {
-        return res.status(400).json({ message: error.details[0].message });
-      }
-
-      updateData = value;
+      updateData.category = category._id;
     }
 
     // Cập nhật khóa học
@@ -134,7 +119,7 @@ const getCoursesForUser = async (req, res) => {
 const getDetailCoures = async (req, res) => {
   try {
     const course = await Course.findOne({
-      _id: req.params.id,
+      _id: req.params.courseId,
       isAllowed: true,
     })
       .populate("instructor", "username")
@@ -148,7 +133,7 @@ const getDetailCoures = async (req, res) => {
     }
 
     const lessons = await Lesson.find(
-      { courseId: req.params.id },
+      { courseId: req.params.courseId },
       "title description order"
     )
       .sort("order")
@@ -176,7 +161,6 @@ const searchCourses = async (req, res) => {
     };
 
     if (search) {
-
       query.$or = [
         {
           title: {
@@ -227,12 +211,44 @@ const searchCourses = async (req, res) => {
   }
 };
 
+const acceptCourse = async (req, res) => {
+  try {
+    const course = await Course.findOne({
+      _id: req.params.courseId,
+    });
+
+    if (!course) {
+      return res
+        .status(404)
+        .json({ message: "Course not found or not allowed" });
+    }
+
+    const newCourse = await Course.findByIdAndUpdate(
+      req.params.courseId,
+      { isAllowed: true },
+      {
+        new: true,
+      }
+    );
+
+    res.status(200).json({
+      message: "Accept enrollment for teachers",
+      data: newCourse,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error accept enrollments for teacher",
+      error: error.message,
+    });
+  }
+};
 const courseController = {
   create,
   update,
   getCoursesForUser,
   getDetailCoures,
   searchCourses,
+  acceptCourse,
 };
 
 module.exports = courseController;
