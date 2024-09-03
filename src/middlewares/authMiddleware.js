@@ -3,24 +3,24 @@ const jwt = require("jsonwebtoken");
 const keyJWT = require("../config/jwt");
 const { User } = require("../models/User");
 
+const sendResponse = require("../helper/sendResponse");
+
 const blacklistedTokens = [];
 
 const verifyToken = (req, res, next) => {
   let token = req.headers["x-access-token"];
 
   if (!token) {
-    return res.status(403).send({ message: "No token provided!" });
+    return sendResponse(res, 403, "No token provided!");
   }
 
   if (blacklistedTokens.includes(token)) {
-    return res.status(401).send({ message: "Token is no longer valid" });
+    return sendResponse(res, 401, "Token is no longer valid");
   }
 
   jwt.verify(token, keyJWT.secret, async (err, decoded) => {
     if (err) {
-      return res.status(401).send({
-        message: "Unauthorized!",
-      });
+      return sendResponse(res, 401, "Unauthorized!");
     }
 
     req.userId = decoded.id;
@@ -28,7 +28,7 @@ const verifyToken = (req, res, next) => {
     // Look up the user in your database
     const user = await User.findById(req.userId);
     if (!user) {
-      return res.status(404).send({ message: "User not found!" });
+      return sendResponse(res, 404, "User not found!");
     }
 
     next();
@@ -37,7 +37,7 @@ const verifyToken = (req, res, next) => {
 
 const authMiddleware = {
   verifyToken,
-  blacklistedTokens
+  blacklistedTokens,
 };
 
 module.exports = authMiddleware;

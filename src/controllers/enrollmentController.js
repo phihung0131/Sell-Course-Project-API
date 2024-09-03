@@ -1,13 +1,15 @@
 const { Enrollment, enrollmentSchema } = require("../models/Enrollment");
 const { Course } = require("../models/Course");
 
+const sendResponse = require("../helper/sendResponse");
+
 const enrollCourse = async (req, res) => {
   try {
     const courseId = req.params.courseId;
 
     const course = await Course.findOne({ _id: courseId, isAllowed: true });
     if (!course) {
-      return res.status(404).json({ message: "Course not found" });
+      return sendResponse(res, 404, "Course not found");
     }
 
     const enrollmentTemp = await Enrollment.findOne({
@@ -15,7 +17,7 @@ const enrollCourse = async (req, res) => {
       courseId: courseId,
     });
     if (enrollmentTemp) {
-      return res.status(404).json({ message: "Enrollment already exists" });
+      return sendResponse(res, 400, "Enrollment already exists");
     }
 
     const enrollment = {
@@ -28,7 +30,7 @@ const enrollCourse = async (req, res) => {
     const { error, value } = enrollmentSchema.validate(enrollment);
 
     if (error) {
-      return res.status(400).json({ message: error.details[0].message });
+      return sendResponse(res, 400, error.details[0].message);
     }
 
     // Create new enrollment
@@ -39,14 +41,9 @@ const enrollCourse = async (req, res) => {
     // Save the lesson
     await newEnrollment.save();
 
-    res.status(201).json({
-      message: "Enrollment added successfully",
-      data: newEnrollment,
-    });
+    sendResponse(res, 201, "Enrollment added successfully", newEnrollment);
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Error creating enrollment", error: err.message });
+    sendResponse(res, 500, "Error creating enrollment", err.message);
   }
 };
 
@@ -59,14 +56,9 @@ const getEnrollments = async (req, res) => {
       .populate("courseId")
       .select("-__v");
 
-    res.status(200).json({
-      message: "Get all enrollments for users",
-      data: enrollments,
-    });
+    sendResponse(res, 200, "Fetched all enrollments for users", enrollments);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching enrollments", error: error.message });
+    sendResponse(res, 500, "Error fetching enrollments", error.message);
   }
 };
 
@@ -78,16 +70,15 @@ const getEnrollmentsACourse = async (req, res) => {
     });
 
     if (!course) {
-      return res
-        .status(404)
-        .json({ message: "Course not found or not allowed" });
+      return sendResponse(res, 404, "Course not found or not allowed");
     }
 
     if (course.instructor.toString() !== req.userId) {
-      return res.status(404).json({
-        message:
-          "You do not have permission to view this course enrollments list!",
-      });
+      return sendResponse(
+        res,
+        403,
+        "You do not have permission to view this course's enrollments"
+      );
     }
 
     const enrollments = await Enrollment.find({
@@ -96,15 +87,19 @@ const getEnrollmentsACourse = async (req, res) => {
       .populate("userId", "email")
       .select("-__v");
 
-    res.status(200).json({
-      message: "Get all enrollments for teachers",
-      data: enrollments,
-    });
+    sendResponse(
+      res,
+      200,
+      "Fetched all enrollments for the course",
+      enrollments
+    );
   } catch (error) {
-    res.status(500).json({
-      message: "Error fetching enrollments for teacher",
-      error: error.message,
-    });
+    sendResponse(
+      res,
+      500,
+      "Error fetching enrollments for the course",
+      error.message
+    );
   }
 };
 
@@ -116,15 +111,15 @@ const acceptEnrollment = async (req, res) => {
     });
 
     if (!course) {
-      return res
-        .status(404)
-        .json({ message: "Course not found or not allowed" });
+      return sendResponse(res, 404, "Course not found or not allowed");
     }
 
     if (course.instructor.toString() !== req.userId) {
-      return res.status(404).json({
-        message: "You do not have permission to accpect this course!",
-      });
+      return sendResponse(
+        res,
+        403,
+        "You do not have permission to accept this enrollment"
+      );
     }
 
     const enrollment = await Enrollment.findOne({
@@ -132,7 +127,7 @@ const acceptEnrollment = async (req, res) => {
     });
 
     if (!enrollment) {
-      return res.status(404).json({ message: "Enrollment not found" });
+      return sendResponse(res, 404, "Enrollment not found");
     }
 
     const newEnrollment = await Enrollment.findByIdAndUpdate(
@@ -143,15 +138,9 @@ const acceptEnrollment = async (req, res) => {
       }
     );
 
-    res.status(200).json({
-      message: "Accept enrollment for teachers",
-      data: newEnrollment,
-    });
+    sendResponse(res, 200, "Enrollment accepted", updatedEnrollment);
   } catch (error) {
-    res.status(500).json({
-      message: "Error accept enrollments for teacher",
-      error: error.message,
-    });
+    sendResponse(res, 500, "Error accepting enrollment", error.message);
   }
 };
 

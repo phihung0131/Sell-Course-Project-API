@@ -3,19 +3,13 @@ const cors = require("cors");
 require("dotenv").config();
 
 const { connectionDatabase } = require("./config/database");
-const {
-  authRoutes,
-  userRoutes,
-  courseRoutes,
-  lessonRoutes,
-  enrollmentRoutes,
-  reviewRoutes,
-} = require("./routes");
-
+const routes = require("./routes");
+const setupSwaggerDocs = require("./docs/api");
 const app = express();
 
 const hostname = process.env.HOSTNAME;
 const port = process.env.PORT || 3000;
+setupSwaggerDocs(app, port);
 
 // Middleware: Enable CORS for specified origin
 let corsOptions = {
@@ -30,13 +24,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // // Routes
-app.use("/", authRoutes);
-app.use("/", userRoutes);
-app.use("/", courseRoutes);
-app.use("/", lessonRoutes);
-app.use("/", enrollmentRoutes);
-app.use("/", reviewRoutes);
-
+app.use("/", routes);
 // app.get("/", (req, res) => {
 //   res.json({ message: "Welcome to bezkoder application." });
 // });

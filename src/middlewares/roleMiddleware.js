@@ -3,79 +3,56 @@ const jwt = require("jsonwebtoken");
 const keyJWT = require("../config/jwt");
 const { User } = require("../models/User");
 
+const sendResponse = require("../helper/sendResponse");
+
 const isAdmin = async (req, res, next) => {
   try {
     const user = await User.findById(req.userId);
-    if (user && user.role === "admin") {
-      next();
-      return;
-    } else if (user) {
-      res.status(403).send({ message: "Require Admin Role!" });
-      return;
+    if (!user) {
+      return sendResponse(res, 404, "User not found!");
+    }
+
+    if (user.role === "admin") {
+      return next();
     } else {
-      res.status(404).send({ message: "User not found!" });
-      return;
+      return sendResponse(res, 403, "Require Admin Role!");
     }
   } catch (error) {
-    console.error(">>>Error checking admin role:", error);
-    res.status(500).send({ message: "Internal server error" });
+    return sendResponse(res, 500, "Internal server error", error.message);
   }
 };
 
 const isTeacher = async (req, res, next) => {
   try {
     const user = await User.findById(req.userId);
-    if (user && user.role === "teacher") {
-      next();
-      return;
-    } else if (user) {
-      res.status(403).send({ message: "Require Teacher Role!" });
-      return;
+    if (!user) {
+      return sendResponse(res, 404, "User not found!");
+    }
+
+    if (user.role === "teacher") {
+      return next();
     } else {
-      res.status(404).send({ message: "User not found!" });
-      return;
+      return sendResponse(res, 403, "Require Teacher Role!");
     }
   } catch (error) {
-    console.error(">>>Error checking teacher role:", error);
-    res.status(500).send({ message: "Internal server error" });
+    return sendResponse(res, 500, "Internal server error", error.message);
   }
 };
 
 const isStudent = async (req, res, next) => {
   try {
     const user = await User.findById(req.userId);
-    if (user && user.role === "student") {
-      next();
-      return;
-    } else if (user) {
-      res.status(403).send({ message: "Require Student Role!" });
-      return;
-    } else {
-      res.status(404).send({ message: "User not found!" });
-      return;
+    if (!user) {
+      return sendResponse(res, 404, "User not found!");
     }
-  } catch (error) {
-    console.error(">>>Error checking student role:", error);
-    res.status(500).send({ message: "Internal server error" });
-  }
-};
 
-const isTeacherOrAdmin = async (req, res, next) => {
-  try {
-    const user = await User.findById(req.userId);
-    if (user && (user.role === "teacher" || user.role === "admin")) {
-      next();
-      return;
-    } else if (user) {
-      res.status(403).send({ message: "Require Teacher or Admin Role!" });
-      return;
+    if (user.role === "student") {
+      return next();
     } else {
-      res.status(404).send({ message: "User not found!" });
-      return;
+      return sendResponse(res, 403, "Require Student Role!");
     }
   } catch (error) {
-    console.error(">>>Error checking teacher/admin role:", error);
-    res.status(500).send({ message: "Internal server error" });
+    return sendResponse(res, 500, "Internal server error", error.message);
   }
 };
 
@@ -83,7 +60,6 @@ const roleMiddleware = {
   isAdmin,
   isTeacher,
   isStudent,
-  isTeacherOrAdmin,
 };
 
 module.exports = roleMiddleware;

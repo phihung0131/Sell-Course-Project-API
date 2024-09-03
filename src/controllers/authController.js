@@ -6,41 +6,49 @@ const { User } = require("../models/User");
 
 const { authMiddleware } = require("../middlewares");
 
+const sendResponse = require("../helper/sendResponse");
+
+// Đăng ký
 const register = async (req, res) => {
   try {
     const { username, email, password, role } = req.body;
 
+    // Mã hóa mật khẩu
     const hashedPassword = await bcrypt.hash(password, 8);
 
-    const user = new User({
+    const newUser = {
       username,
       email,
-      password: hashedPassword,
       role,
-    });
+    };
+
+    const user = new User({ ...newUser, password: hashedPassword });
 
     await user.save();
-    res.status(200).send({ message: "User registered successfully!" });
+
+    sendResponse(res, 201, "User registered successfully!", newUser);
   } catch (error) {
-    console.error(">>> Error during register:", error);
-    res.status(500).send({ message: "Internal server error" });
+    sendResponse(res, 500, "Internal server error", error.message);
   }
 };
 
+// Đăng nhập
 const login = async (req, res) => {
   try {
     const { username, password } = req.body;
 
     const user = await User.findOne({ username });
     if (!user) {
-      return res.status(404).send({ message: "User not found." });
+      return sendResponse(res, 404, "User not found.");
     }
 
+    // so sánh mật khẩu
     const passwordIsValid = await bcrypt.compare(password, user.password);
     if (!passwordIsValid) {
-      return res.status(401).send({ message: "Invalid password." });
+      return sendResponse(res, 401, "Invalid password.");
     }
 
+    // tạo token cho người dùng
     const token = jwt.sign({ id: user.id }, keyJWT.secret, {
       algorithm: "HS256",
       expiresIn: "24h",
@@ -48,21 +56,29 @@ const login = async (req, res) => {
 
     let userObject = user.toObject();
     delete userObject.password;
-
-    res.status(200).send({
+    sendResponse(res, 200, "Login successful", {
       user: userObject,
       accessToken: token,
     });
   } catch (error) {
-    console.error(">>>Error during login:", error);
-    res.status(500).send({ message: "Internal server error" });
+    sendResponse(res, 500, "Internal server error", error.message);
   }
 };
 
+// Đăng xuất
 const logout = (req, res) => {
-  const token = req.headers["x-access-token"];
-  authMiddleware.blacklistedTokens.push(token);
-  res.status(200).send({ message: "Logged out" });
+  try {
+    const token = req.headers["x-access-token"];
+
+    if (token) {
+      authMiddleware.blacklistedTokens.push(token);
+      sendResponse(res, 200, "Logged out successfully");
+    } else {
+      sendResponse(res, 400, "No token provided");
+    }
+  } catch (error) {
+    sendResponse(res, 500, "Internal server error", error.message);
+  }
 };
 
 const authController = {

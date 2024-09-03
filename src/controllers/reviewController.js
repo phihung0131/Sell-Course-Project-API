@@ -2,6 +2,8 @@ const { Review, reviewSchema } = require("../models/Review");
 const { Enrollment } = require("../models/Enrollment");
 const { Course } = require("../models/Course");
 
+const sendResponse = require("../helper/sendResponse");
+
 const create = async (req, res) => {
   try {
     const courseId = req.params.courseId;
@@ -13,43 +15,35 @@ const create = async (req, res) => {
       isAllowed: true,
     });
     if (!enrollment) {
-      return res.status(404).json({
-        message:
-          "You do not have permission to review this course, you are not enrolled!",
-      });
+      return sendResponse(
+        res,
+        403,
+        "You do not have permission to review this course, you are not enrolled!"
+      );
     }
 
-    const review = await Review.findOne({ userId, courseId });
-    if (review) {
-      return res
-        .status(404)
-        .json({ message: "You have reviewed this course!" });
+    const existingReview = await Review.findOne({ userId, courseId });
+    if (existingReview) {
+      return sendResponse(res, 400, "You have already reviewed this course!");
     }
 
     const { error, value } = reviewSchema.validate(req.body);
 
-    // Xác thực dữ liệu đầu vào
     if (error) {
-      return res.status(400).json({ message: error.details[0].message });
+      return sendResponse(res, 400, error.details[0].message);
     }
 
-    const reivew = new Review({
+    const newReview = new Review({
       ...value,
       userId,
       courseId,
     });
 
-    // Lưu course vào database
-    await reivew.save();
+    await newReview.save();
 
-    res.status(201).json({
-      message: "Review created successfully!",
-      data: reivew,
-    });
+    sendResponse(res, 201, "Review created successfully!", newReview);
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Error creating review", error: err.message });
+    sendResponse(res, 500, "Error creating review", err.message);
   }
 };
 
@@ -61,23 +55,16 @@ const getReviews = async (req, res) => {
     });
 
     if (!course) {
-      return res
-        .status(404)
-        .json({ message: "Course not found or not allowed" });
+      return sendResponse(res, 404, "Course not found or not allowed");
     }
 
     const reviews = await Review.find({ courseId: req.params.courseId })
       .sort({ createdAt: -1 })
       .select("-__v -deleted");
 
-    res.status(200).json({
-      message: "Get reviews course",
-      data: reviews,
-    });
+    sendResponse(res, 200, "Fetched reviews successfully", reviews);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching reivews", error: error.message });
+    sendResponse(res, 500, "Error fetching reviews", error.message);
   }
 };
 const reviewController = {

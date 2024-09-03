@@ -1,7 +1,8 @@
 const { User } = require("../models/User");
+const sendResponse = require("../helper/sendResponse");
 
 // No have admin role, admin role is registered by other admin
-const ROLES = ["student", "teacher"];  
+const ROLES = ["student", "teacher"];
 
 const checkDuplicateUsernameOrEmail = async (req, res, next) => {
   try {
@@ -9,30 +10,25 @@ const checkDuplicateUsernameOrEmail = async (req, res, next) => {
       username: req.body.username,
     });
     if (existingUserByUsername) {
-      return res
-        .status(400)
-        .send({ message: "Failed! Username is already in use!" });
+      return sendResponse(res, 400, "Failed! Username is already in use!");
     }
 
     const existingUserByEmail = await User.findOne({ email: req.body.email });
     if (existingUserByEmail) {
-      return res
-        .status(400)
-        .send({ message: "Failed! Email is already in use!" });
+      return sendResponse(res, 400, "Failed! Email is already in use!");
     }
 
     next();
   } catch (error) {
-    console.error(">>>Error checking duplicate username or email:", error);
-    res.status(500).send({ message: "Internal server error" });
+    sendResponse(res, 500, "Internal server error", error.message);
   }
 };
 
 const checkRolesExisted = (req, res, next) => {
+  const role = req.body.role;
+
   if (!ROLES.includes(req.body.role)) {
-    return res.status(400).send({
-      message: `Failed! Role ${req.body.role} does not exist!`,
-    });
+    return sendResponse(res, 400, `Failed! Role ${role} does not exist!`);
   }
 
   next();
