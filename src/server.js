@@ -25,9 +25,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // // Routes
 app.use("/", routes);
-app.use("/", (req, res) => {
-  res.send("Go to [/api-docs] to read API Document");
-});
 
 // API Document
 setupSwaggerDocs(app, port);
