@@ -1,7 +1,6 @@
 const { Course, courseSchema, updateSchema } = require("../models/Course");
 const { Category } = require("../models/Category");
 const { Lesson } = require("../models/Lesson");
-
 const sendResponse = require("../helper/sendResponse");
 
 // Tạo một khóa học
@@ -56,10 +55,18 @@ const update = async (req, res) => {
     let updateData = {};
 
     // Xác thực và cập nhật dữ liệu cho giáo viên
-    const { error, value } = updateSchema.validate(req.body);
+    let { error, value } = updateSchema.validate(req.body);
     if (error) {
       return sendResponse(res, 400, error.details[0].message);
     }
+
+    // Xóa các thuộc tính rỗng
+    value = Object.entries(value).reduce((acc, [key, val]) => {
+      if (val !== "") {
+        acc[key] = val;
+      }
+      return acc;
+    }, {});
 
     updateData = value;
 
@@ -80,6 +87,7 @@ const update = async (req, res) => {
     sendResponse(res, 200, "Course updated successfully", updatedCourse);
   } catch (err) {
     sendResponse(res, 500, "Failed to update course", err.message);
+    console.error(err);
   }
 };
 
@@ -200,7 +208,7 @@ const acceptCourse = async (req, res) => {
       }
     );
 
-    sendResponse(res, 200, "Enrollment accepted for teacher", updatedCourse);
+    sendResponse(res, 200, "Enrollment accepted for teacher", newCourse);
   } catch (error) {
     sendResponse(
       res,
@@ -210,6 +218,7 @@ const acceptCourse = async (req, res) => {
     );
   }
 };
+
 const courseController = {
   create,
   update,

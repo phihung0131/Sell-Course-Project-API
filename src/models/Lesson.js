@@ -34,9 +34,9 @@ const lessonSchema = Joi.object({
 
 // Định nghĩa schema Joi cho xác thực dữ liệu có thể chỉnh sửa
 const updateSchema = Joi.object({
-  title: Joi.string().min(3).max(100),
-  description: Joi.string().min(10).max(1000),
-  order: Joi.number().min(0),
+  title: Joi.string().min(3).max(100).allow(""),
+  description: Joi.string().min(10).max(1000).allow(""),
+  order: Joi.number().min(0).empty("").allow(null),
 });
 
 const Lesson = new mongoose.model("Lesson", LessonSchema);

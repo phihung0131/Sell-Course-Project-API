@@ -25,6 +25,7 @@ const checkDuplicateUsernameOrEmail = async (req, res, next) => {
 };
 
 const checkRolesExisted = (req, res, next) => {
+  console.log(req.body);
   const role = req.body.role;
 
   if (!ROLES.includes(req.body.role)) {

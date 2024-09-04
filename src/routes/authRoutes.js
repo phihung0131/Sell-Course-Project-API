@@ -13,6 +13,63 @@ router.use(function (req, res, next) {
 });
 
 // Đăng kí người dùng
+/**
+ * @swagger
+ * /api/auth/register:
+ *   post:
+ *     tags:
+ *       - Auth
+ *     summary: Đắng kí người dùng
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/x-www-form-urlencoded:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 required: true
+ *               email:
+ *                 type: string
+ *                 required: true
+ *               password:
+ *                 type: string
+ *                 required: true
+ *               role:
+ *                 type: string
+ *                 enum: [student, teacher]
+ *                 description: chỉ student hoặc teacher
+ *                 required: true
+ *     responses:
+ *       2xx:
+ *         description: XXX successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   example: success
+ *                 message:
+ *                   example: XXX successfully
+ *                 data:
+ *                   example: null or object
+ *
+ *       ERROR:
+ *         description: No token provided
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   example: error
+ *                 message:
+ *                   example: error message
+ *                 data:
+ *                   example: null or error detail
+ */
 router.post(
   "/api/auth/register",
   [
@@ -27,8 +84,9 @@ router.post(
  * @swagger
  * /api/auth/login:
  *   post:
- *     summary: Log in a user
- *     tags: [Auth]
+ *     tags:
+ *       - Auth
+ *     summary: Đắng nhập người dùng
  *     requestBody:
  *       required: true
  *       content:
@@ -38,37 +96,79 @@ router.post(
  *             properties:
  *               username:
  *                 type: string
- *                 description: The username of the user
- *                 example: johndoe
+ *                 required: true
  *               password:
  *                 type: string
- *                 description: The password of the user
- *                 example: yourpassword
+ *                 required: true
  *     responses:
- *       200:
- *         description: Login successful
+ *       2xx:
+ *         description: XXX successfully
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 user:
- *                   type: object
- *                   description: User information (excluding password)
- *                 accessToken:
- *                   type: string
- *                   description: JWT token
- *       401:
- *         description: Invalid password
- *       404:
- *         description: User not found
- *       500:
- *         description: Internal server error
+ *                 status:
+ *                   example: success
+ *                 message:
+ *                   example: XXX successfully
+ *                 data:
+ *                   example: null or object
+ *
+ *       ERROR:
+ *         description: No token provided
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   example: error
+ *                 message:
+ *                   example: error message
+ *                 data:
+ *                   example: null or error detail
  */
-router.post("/api/auth/login", authController.login);
 router.post("/api/auth/login", authController.login);
 
 // Đăng xuất
+/**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: Đăng xuất người dùng
+ *     tags: [Auth]
+ *     security:
+ *       - ApiKeyAuth: []
+ *     responses:
+ *       2xx:
+ *         description: XXX successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   example: success
+ *                 message:
+ *                   example: XXX successfully
+ *                 data:
+ *                   example: null or object
+ *
+ *       ERROR:
+ *         description: No token provided
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   example: error
+ *                 message:
+ *                   example: error message
+ *                 data:
+ *                   example: null or error detail
+ */
 router.post(
   "/api/auth/logout",
   [authMiddleware.verifyToken],

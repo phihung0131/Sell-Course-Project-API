@@ -1,7 +1,6 @@
 const { Review, reviewSchema } = require("../models/Review");
 const { Enrollment } = require("../models/Enrollment");
 const { Course } = require("../models/Course");
-
 const sendResponse = require("../helper/sendResponse");
 
 const create = async (req, res) => {
@@ -67,6 +66,7 @@ const getReviews = async (req, res) => {
     sendResponse(res, 500, "Error fetching reviews", error.message);
   }
 };
+
 const reviewController = {
   create,
   getReviews,

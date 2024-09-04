@@ -1,6 +1,5 @@
 const { Enrollment, enrollmentSchema } = require("../models/Enrollment");
 const { Course } = require("../models/Course");
-
 const sendResponse = require("../helper/sendResponse");
 
 const enrollCourse = async (req, res) => {
@@ -51,7 +50,7 @@ const getEnrollments = async (req, res) => {
   try {
     const enrollments = await Enrollment.find({
       userId: req.userId,
-      isAllowed: false,
+      isAllowed: true,
     })
       .populate("courseId")
       .select("-__v");
@@ -138,7 +137,7 @@ const acceptEnrollment = async (req, res) => {
       }
     );
 
-    sendResponse(res, 200, "Enrollment accepted", updatedEnrollment);
+    sendResponse(res, 200, "Enrollment accepted", newEnrollment);
   } catch (error) {
     sendResponse(res, 500, "Error accepting enrollment", error.message);
   }

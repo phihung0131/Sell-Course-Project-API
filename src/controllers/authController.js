@@ -3,12 +3,10 @@ let bcrypt = require("bcryptjs");
 
 const keyJWT = require("../config/jwt");
 const { User } = require("../models/User");
-
 const { authMiddleware } = require("../middlewares");
-
 const sendResponse = require("../helper/sendResponse");
 
-// Đăng ký
+
 const register = async (req, res) => {
   try {
     const { username, email, password, role } = req.body;

@@ -1,7 +1,6 @@
 const { Lesson, lessonSchema, updateSchema } = require("../models/Lesson");
 const { Course } = require("../models/Course");
 const { Enrollment } = require("../models/Enrollment");
-
 const sendResponse = require("../helper/sendResponse");
 
 const create = async (req, res) => {
@@ -66,10 +65,18 @@ const update = async (req, res) => {
       return sendResponse(res, 404, "Lesson not found");
     }
 
-    const { error, value } = updateSchema.validate(req.body);
+    let { error, value } = updateSchema.validate(req.body);
     if (error) {
       return sendResponse(res, 400, error.details[0].message);
     }
+
+    // Xóa các thuộc tính rỗng
+    value = Object.entries(value).reduce((acc, [key, val]) => {
+      if (val !== "") {
+        acc[key] = val;
+      }
+      return acc;
+    }, {});
 
     const updatedLesson = await Lesson.findByIdAndUpdate(lessonId, value, {
       new: true,

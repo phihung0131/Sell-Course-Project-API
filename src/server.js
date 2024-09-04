@@ -9,12 +9,12 @@ const app = express();
 
 const hostname = process.env.HOSTNAME;
 const port = process.env.PORT || 3000;
-setupSwaggerDocs(app, port);
 
 // Middleware: Enable CORS for specified origin
 let corsOptions = {
-  origin: `http://${hostname}:${port}`,
+  origin: "*",
 };
+
 app.use(cors(corsOptions));
 
 // Middleware: Parse requests with JSON payload
@@ -25,9 +25,9 @@ app.use(express.urlencoded({ extended: true }));
 
 // // Routes
 app.use("/", routes);
-// app.get("/", (req, res) => {
-//   res.json({ message: "Welcome to bezkoder application." });
-// });
+
+// API Document
+setupSwaggerDocs(app, port);
 
 // Connect to the database
 connectionDatabase();

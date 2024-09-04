@@ -41,12 +41,12 @@ const courseSchema = Joi.object({
 
 // Định nghĩa schema Joi cho xác thực dữ liệu giáo viên có thể chỉnh sửa
 const updateSchema = Joi.object({
-  title: Joi.string().min(3).max(100),
-  description: Joi.string().min(10).max(1000),
-  price: Joi.number().min(0),
-  category: Joi.string(),
-  level: Joi.string().valid("beginner", "intermediate", "advanced"),
-  language: Joi.string(),
+  title: Joi.string().min(3).max(100).allow(""),
+  description: Joi.string().min(10).max(1000).allow(""),
+  price: Joi.number().empty("").allow(null),
+  category: Joi.string().allow(""),
+  level: Joi.string().valid("beginner", "intermediate", "advanced").allow(""),
+  language: Joi.string().allow(""),
 });
 
 const Course = mongoose.model("Course", CourseSchema);
