@@ -41,8 +41,8 @@ A RESTful API for an online course selling platform built with **Node.js**, **Ex
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/phihung0131/sell-course-project-be
-    cd sell-course-project-be
+    git clone https://github.com/phihung0131/Sell-Course-Project-API
+    cd Sell-Course-Project-API
     ```
 2. Install dependencies:
     ```sh
